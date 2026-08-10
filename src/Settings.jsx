@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, Check, Trash2, Image as ImageIcon, MapPin } from 'lucide-react';
+import { Save, Check, Trash2, AlertCircle } from 'lucide-react';
 
 export default function Settings() {
   const [simbriefUser, setSimbriefUser] = useState('');
   const [selectedChart, setSelectedChart] = useState('navigraph');
   const [selectedBg, setSelectedBg] = useState('classic');
+  
+  const [initialState, setInitialState] = useState({
+    simbriefUser: '',
+    selectedChart: 'navigraph',
+    selectedBg: 'classic'
+  });
+
+  const [hasChanges, setHasChanges] = useState(false);
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    // Carregar definições guardadas anteriormente
     const savedUser = localStorage.getItem('simbrief_username') || '';
     const savedChart = localStorage.getItem('charts_provider') || 'navigraph';
     const savedBg = localStorage.getItem('home_background') || 'classic';
@@ -16,13 +23,36 @@ export default function Settings() {
     setSimbriefUser(savedUser);
     setSelectedChart(savedChart);
     setSelectedBg(savedBg);
+
+    setInitialState({
+      simbriefUser: savedUser,
+      selectedChart: savedChart,
+      selectedBg: savedBg
+    });
   }, []);
+
+  // Detetar se houve alterações face ao estado guardado
+  useEffect(() => {
+    const changed = 
+      simbriefUser !== initialState.simbriefUser ||
+      selectedChart !== initialState.selectedChart ||
+      selectedBg !== initialState.selectedBg;
+    
+    setHasChanges(changed);
+  }, [simbriefUser, selectedChart, selectedBg, initialState]);
 
   const handleSave = () => {
     localStorage.setItem('simbrief_username', simbriefUser.trim());
     localStorage.setItem('charts_provider', selectedChart);
     localStorage.setItem('home_background', selectedBg);
 
+    setInitialState({
+      simbriefUser: simbriefUser.trim(),
+      selectedChart,
+      selectedBg
+    });
+    
+    setHasChanges(false);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
   };
@@ -35,12 +65,33 @@ export default function Settings() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#fff', fontFamily: "'Inter', sans-serif", paddingBottom: 40 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#fff', fontFamily: "'Inter', sans-serif", paddingBottom: 40, position: 'relative' }}>
       
       {/* Cabeçalho */}
-      <div>
-        <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Settings</h2>
-        <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>Manage your EFB preferences</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Settings</h2>
+          <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>Manage your EFB preferences</p>
+        </div>
+
+        {/* Alerta / Botão de Save dinâmico no TOPO */}
+        {hasChanges && (
+          <div style={{ background: 'rgba(19, 135, 75, 0.15)', border: '1px solid #13874B', padding: '10px 18px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12, animation: 'fadeIn 0.2s ease-in-out' }}>
+            <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>You have unsaved changes</span>
+            <button 
+              onClick={handleSave}
+              style={{ background: '#13874B', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
+            >
+              <Save size={15} /> Save Changes
+            </button>
+          </div>
+        )}
+
+        {success && !hasChanges && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4ade80', fontSize: 14, fontWeight: 600 }}>
+            <Check size={18} /> Definições guardadas com sucesso!
+          </div>
+        )}
       </div>
 
       {/* SimBrief Username */}
@@ -116,22 +167,6 @@ export default function Settings() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Botão Save Changes e Mensagem de Sucesso */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
-        <button 
-          onClick={handleSave}
-          style={{ background: '#13874B', border: 'none', color: '#fff', padding: '12px 24px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}
-        >
-          <Save size={18} /> Save Changes
-        </button>
-
-        {success && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4ade80', fontSize: 14, fontWeight: 600 }}>
-            <Check size={18} /> Definições guardadas com sucesso!
-          </div>
-        )}
       </div>
 
       {/* Reset EFB */}
