@@ -20,24 +20,21 @@ export default function Weather() {
 
     try {
       const response = await fetch(`/api/metar?icao=${code}`);
-      const data = await response.json();
+      const textResponse = await response.text();
+
+      let data;
+      try {
+        data = JSON.parse(textResponse);
+      } catch (e) {
+        throw new Error(textResponse || 'Erro interno no servidor.');
+      }
 
       if (!response.ok) {
         throw new Error(data.error || 'Erro ao ligar ao serviço.');
       }
 
-      let metarText = null;
-
-      if (Array.isArray(data) && data.length > 0) {
-        metarText = data[0].rawOb || data[0].raw_text;
-      } else if (data && data.rawOb) {
-        metarText = data.rawOb;
-      } else if (typeof data === 'string') {
-        metarText = data;
-      }
-
-      if (metarText) {
-        setRawMetar(metarText);
+      if (data && data.rawOb) {
+        setRawMetar(data.rawOb);
       } else {
         setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
