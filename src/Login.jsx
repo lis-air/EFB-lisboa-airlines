@@ -61,7 +61,7 @@ function Login({ onAuthSuccess }) {
 
   const handleLogin = () => {
     // Ensuring the trailing slash is present to match the Discord portal exactly
-    const redirectUri = encodeURIComponent('https://efb-lisboa-airlines.vercel.app/');;
+    const redirectUri = encodeURIComponent('https://efb-lisboa-airlines.vercel.app/');
     const oauthUrl = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${redirectUri}&scope=identify+guilds`;
     window.location.href = oauthUrl;
   };
