@@ -20,12 +20,16 @@ export default function Weather() {
 
     try {
       const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+      // Usar o endpoint /get do AllOrigins para garantir que o JSON é lido sem erros de header
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
       
       const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error('Erro ao obter dados meteorológicos.');
+      if (!response.ok) throw new Error('Erro ao ligar ao serviço de proxy.');
 
-      const data = await response.json();
+      const wrapper = await response.json();
+      if (!wrapper.contents) throw new Error('Dados vazios do servidor.');
+
+      const data = JSON.parse(wrapper.contents);
       let metarText = null;
 
       if (Array.isArray(data) && data.length > 0) {
@@ -37,11 +41,11 @@ export default function Weather() {
       if (metarText) {
         setRawMetar(metarText);
       } else {
-        throw new Error('METAR não encontrado.');
+        setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
     } catch (err) {
       console.error(err);
-      setError('Não foi possível carregar o METAR. Verifique se o código ICAO está correto.');
+      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
     } finally {
       setLoading(false);
     }
