@@ -16,38 +16,31 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // 1. Tentar NOAA diretamente (às vezes funciona sem CORS dependendo do host)
-      const response = await fetch(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`);
+      // URL oficial do Aviation Weather formatado em JSON
+      const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
+      // Usar o AllOrigins como proxy CORS seguro
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
       
-      if (response.ok) {
-        const text = await response.text();
-        const lines = text.trim().split('\n');
-        const metarText = lines.length > 1 ? lines[lines.length - 1] : text;
-        if (metarText && metarText.length > 5) {
-          setRawMetar(metarText);
-          setLoading(false);
-          return;
-        }
+      const response = await fetch(proxyUrl);
+      
+      if (!response.ok) {
+        throw new Error('Erro ao ligar ao serviço de meteorologia.');
       }
 
-      // 2. Fallback usando CORS Proxy para o AviationWeather oficial atualizado
-      const proxyUrl = `https://corsproxy.io/?https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      const altRes = await fetch(proxyUrl);
+      const data = await response.json();
       
-      if (altRes.ok) {
-        const data = await altRes.json();
-        if (Array.isArray(data) && data.length > 0 && data[0].rawOb) {
-          setRawMetar(data[0].rawOb);
-          setLoading(false);
-          return;
-        } else if (data.rawOb) {
-          setRawMetar(data.rawOb);
-          setLoading(false);
-          return;
-        }
+      let metarText = null;
+      if (Array.isArray(data) && data.length > 0) {
+        metarText = data[0].rawOb || data[0].raw_text;
+      } else if (data && data.rawOb) {
+        metarText = data.rawOb;
       }
 
-      throw new Error('Aeroporto não encontrado ou dados indisponíveis.');
+      if (metarText) {
+        setRawMetar(metarText);
+      } else {
+        throw new Error('METAR não encontrado para este aeroporto.');
+      }
 
     } catch (err) {
       console.error(err);
