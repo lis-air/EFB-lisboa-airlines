@@ -18,42 +18,31 @@ export default function Weather() {
     setError(null);
     setRawMetar(null);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-
     try {
-      // Usar o endpoint de texto oficial da NOAA via AllOrigins (altamente estável)
-      const targetUrl = `https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`;
-      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+      // Usar a API oficial da AviationWeather com o corsproxy.io (estável e rápido)
+      const apiUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
 
-      const response = await fetch(proxyUrl, { signal: controller.signal });
-      clearTimeout(timeoutId);
+      const response = await fetch(proxyUrl);
+      if (!response.ok) throw new Error('Erro ao ligar ao serviço meteorológico.');
 
-      if (!response.ok) throw new Error('Aeroporto não encontrado.');
+      const data = await response.json();
+      let metarText = null;
 
-      const text = await response.text();
-      
-      if (!text || text.includes('Not Found') || text.trim().length < 5) {
-        throw new Error('METAR não disponível.');
+      if (Array.isArray(data) && data.length > 0) {
+        metarText = data[0].rawOb || data[0].raw_text;
+      } else if (data && data.rawOb) {
+        metarText = data.rawOb;
       }
 
-      // O formato NOAA traz a data na 1ª linha e o METAR na última linha
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-      let metarResult = lines.length > 1 ? lines[lines.length - 1] : lines[0];
-
-      if (metarResult && metarResult.length > 10) {
-        setRawMetar(metarResult);
+      if (metarText) {
+        setRawMetar(metarText);
       } else {
         setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
     } catch (err) {
-      clearTimeout(timeoutId);
       console.error(err);
-      if (err.name === 'AbortError') {
-        setError('O pedido demorou demasiado tempo. Tenta novamente.');
-      } else {
-        setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
-      }
+      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
     } finally {
       setLoading(false);
     }
