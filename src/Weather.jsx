@@ -7,6 +7,9 @@ export default function Weather() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Insere aqui a tua API Key gratuita obtida em checkwx.com
+  const CHECKWX_API_KEY = 'COLOCA_A_TUA_API_KEY_AQUI';
+
   const fetchWeather = async (targetIcao) => {
     const code = (targetIcao || icao).trim().toUpperCase();
     if (!code) {
@@ -19,33 +22,24 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      // Usar o endpoint /get do AllOrigins para garantir que o JSON é lido sem erros de header
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+      const response = await fetch(`https://api.checkwx.com/metar/${code}`, {
+        headers: {
+          'X-API-Key': CHECKWX_API_KEY
+        }
+      });
+
+      if (!response.ok) throw new Error('Erro ao ligar à API da CheckWX.');
+
+      const data = await response.json();
       
-      const response = await fetch(proxyUrl);
-      if (!response.ok) throw new Error('Erro ao ligar ao serviço de proxy.');
-
-      const wrapper = await response.json();
-      if (!wrapper.contents) throw new Error('Dados vazios do servidor.');
-
-      const data = JSON.parse(wrapper.contents);
-      let metarText = null;
-
-      if (Array.isArray(data) && data.length > 0) {
-        metarText = data[0].rawOb || data[0].raw_text;
-      } else if (data && data.rawOb) {
-        metarText = data.rawOb;
-      }
-
-      if (metarText) {
-        setRawMetar(metarText);
+      if (data && data.data && data.data.length > 0) {
+        setRawMetar(data.data[0]);
       } else {
         setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
     } catch (err) {
       console.error(err);
-      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
+      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto ou a API Key.');
     } finally {
       setLoading(false);
     }
