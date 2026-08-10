@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Cloud, Search, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function Weather() {
-  const [icao, setIcao] = useState('LPPT');
+  const [icao, setIcao] = useState('');
   const [rawMetar, setRawMetar] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchWeather = async (targetIcao) => {
     const code = (targetIcao || icao).trim().toUpperCase();
-    if (!code) return;
+    if (!code) {
+      setError('Por favor, insere um código ICAO.');
+      return;
+    }
 
     setLoading(true);
     setError(null);
     setRawMetar(null);
 
     try {
-      // URL oficial da Aviation Weather API
       const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      // Usar o proxy AllOrigins para evitar qualquer bloqueio de CORS do navegador
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
       
       const response = await fetch(proxyUrl);
@@ -40,15 +41,11 @@ export default function Weather() {
       }
     } catch (err) {
       console.error(err);
-      setError('Não foi possível carregar o METAR. Verifique se o código ICAO está correto (ex: LPPT, LPPR).');
+      setError('Não foi possível carregar o METAR. Verifique se o código ICAO está correto.');
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchWeather('LPPT');
-  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, color: '#fff', fontFamily: "'Inter', sans-serif" }}>
@@ -65,6 +62,7 @@ export default function Weather() {
             type="text" 
             value={icao} 
             onChange={(e) => setIcao(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === 'Enter' && fetchWeather()}
             maxLength={4}
             placeholder="ICAO"
             style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.2)', padding: '8px 14px', borderRadius: 8, color: '#fff', fontWeight: 'bold', width: 100, textAlign: 'center', outline: 'none' }}
