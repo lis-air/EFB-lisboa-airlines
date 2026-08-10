@@ -4,29 +4,25 @@ import Weather from './Weather';
 import Settings from './Settings';
 import Takeoff from './Takeoff';
 import Landing from './Landing';
+import Login from './Login';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
   const [backgroundType, setBackgroundType] = useState('classic');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Carregar e escutar alterações nas definições de fundo
+  // Verificar se já existe um token de login guardado
   useEffect(() => {
-    const updateBg = () => {
-      const bg = localStorage.getItem('home_background') || 'classic';
-      setBackgroundType(bg);
-    };
-
-    updateBg();
-    window.addEventListener('storage', updateBg);
-    
-    // Evento personalizado para atualização instantânea
-    window.addEventListener('settingsChanged', updateBg);
-
-    return () => {
-      window.removeEventListener('storage', updateBg);
-      window.removeEventListener('settingsChanged', updateBg);
-    };
+    const token = localStorage.getItem('discord_token') || window.location.hash.includes('access_token');
+    if (token) {
+      setIsAuthenticated(true);
+    }
   }, []);
+
+  // Se não estiver autenticado, mostra obrigatoriamente o Login
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <div style={{
