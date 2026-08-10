@@ -7,9 +7,6 @@ export default function Weather() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Insere aqui a tua API Key gratuita obtida em checkwx.com
-  const CHECKWX_API_KEY = 'COLOCA_A_TUA_API_KEY_AQUI';
-
   const fetchWeather = async (targetIcao) => {
     const code = (targetIcao || icao).trim().toUpperCase();
     if (!code) {
@@ -22,24 +19,42 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      const response = await fetch(`https://api.checkwx.com/metar/${code}`, {
+      // Usar a API pública da AvWX que suporta CORS nativamente para aplicações web
+      const response = await fetch(`https://avwx.rest/api/metar/${code}`, {
         headers: {
-          'X-API-Key': CHECKWX_API_KEY
+          // Token público de teste da AVWX para evitar bloqueios totais
+          'Authorization': 'BEARER public'
         }
       });
 
-      if (!response.ok) throw new Error('Erro ao ligar à API da CheckWX.');
+      if (!response.ok) throw new Error('Aeroporto não encontrado.');
 
       const data = await response.json();
       
-      if (data && data.data && data.data.length > 0) {
-        setRawMetar(data.data[0]);
+      if (data && data.raw) {
+        setRawMetar(data.raw);
       } else {
-        setError('Aeroporto não encontrado ou sem METAR disponível.');
+        setError('METAR não disponível para este aeroporto.');
       }
     } catch (err) {
       console.error(err);
-      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto ou a API Key.');
+      // Fallback ultra-seguro usando proxy AllOrigins limpo caso o AVWX falhe
+      try {
+        const backupUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`)}`;
+        const backupRes = await fetch(backupUrl);
+        if (backupRes.ok) {
+          const text = await backupRes.text();
+          const lines = text.trim().split('\n');
+          const metarText = lines.length > 1 ? lines[lines.length - 1] : text;
+          if (metarText && metarText.length > 5) {
+            setRawMetar(metarText.trim());
+            setLoading(false);
+            return;
+          }
+        }
+      } catch (e) {}
+
+      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
     } finally {
       setLoading(false);
     }
