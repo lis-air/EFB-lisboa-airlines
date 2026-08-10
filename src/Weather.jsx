@@ -20,16 +20,21 @@ export default function Weather() {
 
     try {
       const response = await fetch(`/api/metar?icao=${code}`);
-      
-      if (!response.ok) throw new Error('Erro ao ligar ao serviço.');
-
       const data = await response.json();
+
+      if (!response.ok) {
+        console.error("Detalhes do erro do servidor:", data);
+        throw new Error(data.error || 'Erro ao ligar ao serviço.');
+      }
+
       let metarText = null;
 
       if (Array.isArray(data) && data.length > 0) {
         metarText = data[0].rawOb || data[0].raw_text;
       } else if (data && data.rawOb) {
         metarText = data.rawOb;
+      } else if (typeof data === 'string') {
+        metarText = data;
       }
 
       if (metarText) {
@@ -38,8 +43,8 @@ export default function Weather() {
         setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
     } catch (err) {
-      console.error(err);
-      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
+      console.error("Erro completo:", err);
+      setError(err.message || 'Não foi possível carregar o METAR.');
     } finally {
       setLoading(false);
     }
