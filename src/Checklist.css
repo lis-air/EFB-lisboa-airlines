@@ -1,0 +1,126 @@
+.checklist-paper {
+  background: white;
+  color: black;
+  width: 900px;
+  min-height: 800px;
+  padding: 30px;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  border-radius: 4px;
+}
+
+.cl-header {
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 10px;
+  align-items: stretch;
+}
+
+.cl-logo-container {
+  width: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 15px;
+}
+
+.cl-logo {
+  max-width: 100%;
+  max-height: 50px;
+  object-fit: contain;
+}
+
+.cl-title-box {
+  flex: 1;
+  display: flex;
+  background-color: #63b156; /* Match the specific green from the image */
+  border: 2px solid #000;
+  align-items: stretch;
+}
+
+.cl-ac-type {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px;
+  border-right: 2px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #7ccb70; /* Slightly lighter green for this box in the ref */
+}
+
+.cl-main-title {
+  flex: 1;
+  font-size: 28px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 2px solid #000;
+  background-color: #63b156; 
+}
+
+.cl-version {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #5aa44e; /* Slightly darker green */
+}
+
+.cl-body {
+  display: flex;
+  gap: 20px;
+}
+
+.cl-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.cl-section {
+  border: 2px solid #000;
+}
+
+.cl-section-title {
+  background-color: #d8d8d8; /* Match light gray from reference */
+  text-align: center;
+  font-weight: bold;
+  padding: 5px;
+  border-bottom: 2px solid #000;
+}
+
+.cl-item {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.cl-item > span:not(.cl-dots) {
+  white-space: nowrap;
+}
+
+.cl-dots {
+  flex: 1;
+  border-bottom: 2px dotted #000;
+  margin: 0 10px;
+  position: relative;
+  top: -4px;
+}
+
+.cl-subitems {
+  padding: 4px 8px 4px 30px;
+  font-size: 13px;
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
