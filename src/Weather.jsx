@@ -19,9 +19,9 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
+      const response = await fetch(`/api/metar?icao=${code}`);
       
-      if (!response.ok) throw new Error('Erro ao ligar ao serviço meteorológico.');
+      if (!response.ok) throw new Error('Erro ao ligar ao serviço.');
 
       const data = await response.json();
       let metarText = null;
@@ -104,4 +104,4 @@ export default function Weather() {
 
     </div>
   );
-} 
+}
