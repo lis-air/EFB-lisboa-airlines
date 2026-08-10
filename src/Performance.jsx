@@ -25,14 +25,15 @@ function Performance({ type }) {
 
   const [loadingMsg, setLoadingMsg] = useState('');
 
-  React.useEffect(() => {
-    const username = localStorage.getItem('simbriefUsername');
+  const fetchSimbriefData = React.useCallback(() => {
+    // A chave tem de ser exatamente igual à usada em Settings.jsx ('simbrief_username')
+    const username = localStorage.getItem('simbrief_username');
     if (!username) {
       setLoadingMsg('No SimBrief username set. Go to Settings to add yours.');
       return;
     }
     setLoadingMsg(`Fetching OFP for ${username}...`);
-    
+
     fetch(`https://www.simbrief.com/api/xml.fetcher.php?username=${username}&json=1`)
       .then(res => res.json())
       .then(data => {
@@ -41,7 +42,7 @@ function Performance({ type }) {
             airport: isTakeoff ? data.origin.icao_code : data.destination.icao_code,
             rwy: isTakeoff ? data.origin.plan_rwy : data.destination.plan_rwy,
             weight: isTakeoff ? (data.weights.est_tow / 1000).toFixed(1) + 'T' : (data.weights.est_ldw / 1000).toFixed(1) + 'T',
-            wind: 'Auto', 
+            wind: 'Auto',
             temp: 'Auto',
             qnh: 'Auto',
             v1: isTakeoff ? '138' : '---',
@@ -67,6 +68,15 @@ function Performance({ type }) {
       });
   }, [isTakeoff]);
 
+  React.useEffect(() => {
+    fetchSimbriefData();
+
+    // Se o username for alterado nas Settings enquanto este ecrã está aberto,
+    // busca os dados outra vez automaticamente, sem precisar de recarregar a página.
+    window.addEventListener('settingsChanged', fetchSimbriefData);
+    return () => window.removeEventListener('settingsChanged', fetchSimbriefData);
+  }, [fetchSimbriefData]);
+
   const [calculating, setCalculating] = useState(false);
   const [results, setResults] = useState(null);
 
@@ -83,9 +93,13 @@ function Performance({ type }) {
     <div className="view-container" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
       
       <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', padding: '30px' }}>
-        <h2 style={{ fontSize: '1.8rem', display: 'flex', alignItems: 'center', gap: '15px', color: 'var(--brand-highlight)', marginBottom: '30px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px' }}>
+        <h2 style={{ fontSize: '1.8rem', display: 'flex', alignItems: 'center', gap: '15px', color: 'var(--brand-highlight)', marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px' }}>
           <Icon size={28} /> FlightSmart+ {isTakeoff ? 'Takeoff' : 'Landing'}
         </h2>
+
+        {loadingMsg && (
+          <p style={{ color: 'var(--vivid-cyan)', fontSize: '0.9rem', marginBottom: '20px' }}>{loadingMsg}</p>
+        )}
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
           {/* Inputs */}
