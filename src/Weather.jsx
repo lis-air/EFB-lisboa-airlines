@@ -19,25 +19,15 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      const response = await fetch(`/api/metar?icao=${code}`);
-      const textResponse = await response.text();
+      // Usar a API pública da VATSIM diretamente no browser (sem backend/serverless)
+      const response = await fetch(`https://metar.vatsim.net/vatsim-metar.php?id=${code}`);
+      const text = await response.text();
 
-      let data;
-      try {
-        data = JSON.parse(textResponse);
-      } catch (e) {
-        throw new Error(textResponse || 'Erro interno no servidor.');
+      if (!response.ok || !text || text.trim() === '' || text.includes('No METAR')) {
+        throw new Error('Aeroporto não encontrado ou sem METAR disponível.');
       }
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao ligar ao serviço.');
-      }
-
-      if (data && data.rawOb) {
-        setRawMetar(data.rawOb);
-      } else {
-        setError('Aeroporto não encontrado ou sem METAR disponível.');
-      }
+      setRawMetar(text.trim());
     } catch (err) {
       console.error("Erro completo:", err);
       setError(err.message || 'Não foi possível carregar o METAR.');
