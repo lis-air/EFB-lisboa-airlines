@@ -19,11 +19,9 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // Usar a API oficial da AviationWeather com o corsproxy.io (estável e rápido)
-      const apiUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(apiUrl)}`;
-
-      const response = await fetch(proxyUrl);
+      // Pedido direto à API oficial da NOAA (suporta CORS nativamente)
+      const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
+      
       if (!response.ok) throw new Error('Erro ao ligar ao serviço meteorológico.');
 
       const data = await response.json();
