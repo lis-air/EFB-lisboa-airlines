@@ -17,7 +17,6 @@ import Settings from './Settings';
 const CLIENT_ID = "1536408790264582194"; 
 const GUILD_ID_REQUERIDO = "1473634134579478701"; 
 
-// Usa automaticamente o URL atual do site (localhost ou vercel.app)
 const REDIRECT_URI_STRING = window.location.origin + "/"; 
 const REDIRECT_URI = encodeURIComponent(REDIRECT_URI_STRING); 
 const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${REDIRECT_URI}&scope=identify%20guilds`;
@@ -31,7 +30,6 @@ function DiscordAuthWrapper({ children }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Injetar a fonte 'Inter' do Google Fonts dinamicamente se não existir
     if (!document.getElementById('google-font-inter')) {
       const link = document.createElement('link');
       link.id = 'google-font-inter';
@@ -106,9 +104,9 @@ function DiscordAuthWrapper({ children }) {
 
   return (
     <>
-      <div style={{ position: 'fixed', top: 12, right: 20, zIndex: 9999, display: 'flex', alignItems: 'center', gap: 15, background: 'rgba(0,0,0,0.7)', padding: '6px 14px', borderRadius: 20, color: '#fff', fontSize: 13, border: '1px solid rgba(255,255,255,0.1)', fontFamily: "'Inter', sans-serif" }}>
+      <div style={{ position: 'fixed', top: 12, right: 30, zIndex: 99999, display: 'flex', alignItems: 'center', gap: 15, background: 'rgba(15,15,15,0.85)', backdropFilter: 'blur(10px)', padding: '6px 16px', borderRadius: 20, color: '#fff', fontSize: 13, border: '1px solid rgba(255,255,255,0.15)', fontFamily: "'Inter', sans-serif", boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}>
         <span><b>{user.global_name || user.username}</b></span>
-        <button onClick={handleLogout} style={{ background: '#ff4d4d', border: 'none', color: '#fff', borderRadius: 4, padding: '3px 8px', cursor: 'pointer' }}>Sair</button>
+        <button onClick={handleLogout} style={{ background: '#ff4d4d', border: 'none', color: '#fff', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontWeight: 'bold' }}>Sair</button>
       </div>
       {children}
     </>
@@ -279,8 +277,8 @@ function App() {
   };
 
   return (
-    <DiscordAuthWrapper>
-      <Router>
+    <Router>
+      <DiscordAuthWrapper>
         <div style={{ width: '100vw', height: '100vh', background: '#0a0d12', display: 'flex', justifyContent: 'center', alignItems: 'center', overflow: 'hidden' }}>
           
           <div style={{ width: '95vw', height: '96vh', background: '#161616', borderRadius: 20, padding: 8, boxShadow: '0 20px 50px rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', border: '2px solid #2c2c2c', position: 'relative' }}>
@@ -312,21 +310,17 @@ function App() {
             {/* Ecrã Interno com Wallpaper e Animações */}
             <div style={{ flex: 1, borderRadius: 14, overflow: 'hidden', position: 'relative', backgroundImage: `url(${wallpaper})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
               <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.35)', display: 'flex', flexDirection: 'column' }}>
-                <Routes>
-                  <Route path="/*" element={
-                    <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                      <AnimatePresence mode="wait">
-                        <Routes>
-                          <Route path="/" element={<IpadHome />} />
-                          <Route path="/*" element={<IpadAppLayout />} />
-                        </Routes>
-                      </AnimatePresence>
-                      
-                      {/* BOTÃO HOME FÍSICO NO CANTO INFERIOR ESQUERDO */}
-                      <HomeButtonOverlay />
-                    </div>
-                  } />
-                </Routes>
+                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                  <AnimatePresence mode="wait">
+                    <Routes>
+                      <Route path="/" element={<IpadHome />} />
+                      <Route path="/*" element={<IpadAppLayout />} />
+                    </Routes>
+                  </AnimatePresence>
+                  
+                  {/* BOTÃO HOME FÍSICO NO CANTO INFERIOR ESQUERDO */}
+                  <HomeButtonOverlay />
+                </div>
               </div>
             </div>
 
@@ -337,8 +331,8 @@ function App() {
 
           </div>
         </div>
-      </Router>
-    </DiscordAuthWrapper>
+      </DiscordAuthWrapper>
+    </Router>
   );
 }
 
