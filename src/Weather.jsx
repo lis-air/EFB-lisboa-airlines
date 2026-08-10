@@ -19,7 +19,6 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // Pedido direto à API oficial da NOAA (suporta CORS nativamente)
       const response = await fetch(`https://aviationweather.gov/api/data/metar?ids=${code}&format=json`);
       
       if (!response.ok) throw new Error('Erro ao ligar ao serviço meteorológico.');
