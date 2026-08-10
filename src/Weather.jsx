@@ -23,7 +23,6 @@ export default function Weather() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error("Detalhes do erro do servidor:", data);
         throw new Error(data.error || 'Erro ao ligar ao serviço.');
       }
 
