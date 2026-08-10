@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 
 export default function Settings() {
-  const [simbriefUser, setSimbriefUser] = useState(localStorage.getItem('simbrief_user') || 'gabrielpilot2011');
+  const [simbriefUser, setSimbriefUser] = useState(localStorage.getItem('simbrief_user') || '');
   const [chartsProvider, setChartsProvider] = useState(localStorage.getItem('charts_provider') || 'Navigraph Charts (Web)');
   const [wallpaper, setWallpaper] = useState(localStorage.getItem('efb_wallpaper') || '/file_cover_-_1.png');
 
@@ -42,6 +42,7 @@ export default function Settings() {
             setSimbriefUser(e.target.value);
             localStorage.setItem('simbrief_user', e.target.value);
           }}
+          placeholder="Put your username"
           style={{ width: '100%', background: '#0a0d0b', border: '1px solid #234e36', borderRadius: 8, padding: '10px 14px', color: '#fff', fontSize: 13, outline: 'none', boxSizing: 'border-box' }}
         />
       </div>
@@ -116,7 +117,7 @@ export default function Settings() {
 
       {/* Reset EFB Card */}
       <div style={{ background: '#141816', border: '1px solid #1a3c2a', borderRadius: 12, padding: 18 }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px 0', color: '#fff' }}>Reset EFB</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 600, margin: '0 0 4px 0', color: '#ff4d4d' }}>Reset EFB</h3>
         <p style={{ color: '#888', fontSize: 12, margin: '0 0 12px 0' }}>Clears all local data and reloads the app.</p>
         <button 
           onClick={handleReset}
