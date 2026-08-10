@@ -18,30 +18,31 @@ export default function Weather() {
     setError(null);
     setRawMetar(null);
 
-    // Sistema de Timeout (7 segundos) para nunca ficar preso em infinito
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
 
     try {
-      const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
+      // Usar o endpoint de texto oficial da NOAA via AllOrigins (altamente estável)
+      const targetUrl = `https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`;
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
 
       const response = await fetch(proxyUrl, { signal: controller.signal });
       clearTimeout(timeoutId);
 
-      if (!response.ok) throw new Error('Erro na resposta do servidor.');
+      if (!response.ok) throw new Error('Aeroporto não encontrado.');
 
-      const data = await response.json();
-      let metarText = null;
-
-      if (Array.isArray(data) && data.length > 0) {
-        metarText = data[0].rawOb || data[0].raw_text;
-      } else if (data && data.rawOb) {
-        metarText = data.rawOb;
+      const text = await response.text();
+      
+      if (!text || text.includes('Not Found') || text.trim().length < 5) {
+        throw new Error('METAR não disponível.');
       }
 
-      if (metarText) {
-        setRawMetar(metarText);
+      // O formato NOAA traz a data na 1ª linha e o METAR na última linha
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      let metarResult = lines.length > 1 ? lines[lines.length - 1] : lines[0];
+
+      if (metarResult && metarResult.length > 10) {
+        setRawMetar(metarResult);
       } else {
         setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
