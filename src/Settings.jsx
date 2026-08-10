@@ -3,16 +3,16 @@ import React, { useState, useEffect } from 'react';
 export default function Settings() {
   const [username, setUsername] = useState('');
   const [chartProvider, setChartProvider] = useState('Navigraph Charts (Web)');
-  const [backgroundType, setBackgroundType] = useState('classic');
+  const [backgroundType, setBackgroundType] = useState('Default');
+  const [realisticMode, setRealisticMode] = useState(false);
 
-  // Carregar dados quando a página abre
   useEffect(() => {
     setUsername(localStorage.getItem('simbrief_username') || '');
     setChartProvider(localStorage.getItem('chart_provider') || 'Navigraph Charts (Web)');
-    setBackgroundType(localStorage.getItem('home_background') || 'classic');
+    setBackgroundType(localStorage.getItem('home_background') || 'Default');
+    setRealisticMode(localStorage.getItem('realistic_mode') === 'true');
   }, []);
 
-  // Gravar automaticamente ao escrever o Username e avisar a App
   const handleUsernameChange = (e) => {
     const val = e.target.value;
     setUsername(val);
@@ -28,96 +28,124 @@ export default function Settings() {
 
   const handleBackgroundChange = (bg) => {
     setBackgroundType(bg);
-    localStorage.setItem('home_background', bg);
+    localStorage.setItem('home_background', bg.toLowerCase());
     window.dispatchEvent(new Event('settingsChanged'));
   };
 
-  const handleReset = () => {
-    if (window.confirm('Clear all local data and reload the app?')) {
-      localStorage.clear();
-      window.location.reload();
-    }
+  const handleRealisticToggle = () => {
+    const newVal = !realisticMode;
+    setRealisticMode(newVal);
+    localStorage.setItem('realistic_mode', newVal);
+    window.dispatchEvent(new Event('settingsChanged'));
   };
 
   return (
-    <div className="settings-container" style={{ padding: '20px', color: '#fff', maxWidth: '1000px' }}>
-      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px' }}>Settings</h2>
-      <p style={{ color: '#888', fontSize: '14px', marginBottom: '30px' }}>Manage your EFB preferences</p>
+    <div style={{ padding: '20px', color: '#fff', maxWidth: '900px', margin: '0 auto', fontFamily: "'Inter', sans-serif" }}>
+      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px', color: '#4ade80' }}>Settings</h2>
+      <p style={{ color: '#888', fontSize: '14px', marginBottom: '30px' }}>Manage your EFB preferences.</p>
 
       {/* SimBrief */}
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>SimBrief</h3>
+      <div style={{ background: '#0a1128', border: '1px solid #1e293b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px', fontWeight: 'bold' }}>SimBrief</h3>
         <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Your SimBrief username for flight plan downloads.</p>
         <input 
           type="text" 
           value={username} 
           onChange={handleUsernameChange}
-          style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', color: '#fff', padding: '12px', borderRadius: '6px' }}
+          placeholder="Put your SimBrief username..."
+          style={{ width: '100%', background: '#050b14', border: '1px solid #1e293b', color: '#fff', padding: '12px', borderRadius: '8px', outline: 'none' }}
         />
       </div>
 
       {/* Charts */}
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>Charts</h3>
+      <div style={{ background: '#0a1128', border: '1px solid #1e293b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px', fontWeight: 'bold' }}>Charts</h3>
         <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Choose your preferred charts provider.</p>
-        {['Navigraph Charts (Web)', 'MSFS24 Lido (Web)', 'ChartFox (Web)'].map(provider => (
-          <div 
-            key={provider}
-            onClick={() => handleChartChange(provider)}
-            style={{ 
-              padding: '12px', 
-              border: chartProvider === provider ? '1px solid #13874B' : '1px solid #333', 
-              background: chartProvider === provider ? 'rgba(19, 135, 75, 0.1)' : 'transparent',
-              marginBottom: '8px', 
-              borderRadius: '6px', 
-              cursor: 'pointer' 
-            }}
-          >
-            {provider}
-          </div>
-        ))}
-      </div>
-
-      {/* Home screen background */}
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>Home screen background</h3>
-        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Choose the wallpaper for your home screen from the official options below.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-          {[
-            { id: 'classic', name: 'Lisboa Classic' },
-            { id: 'logo', name: 'Lisboa Logo' }
-          ].map(bg => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {['Navigraph Charts (Web)', 'Navigraph Charts (App)', 'MSFS24 Lido (Web)', 'ChartFox (Web)', 'ForeFlight (App)'].map(provider => (
             <div 
-              key={bg.id}
-              onClick={() => handleBackgroundChange(bg.id)}
-              style={{
-                padding: '20px',
-                textAlign: 'center',
-                border: backgroundType === bg.id ? '1px solid #13874B' : '1px solid #333',
-                background: backgroundType === bg.id ? 'rgba(19, 135, 75, 0.1)' : 'transparent',
-                borderRadius: '6px',
+              key={provider}
+              onClick={() => handleChartChange(provider)}
+              style={{ 
+                padding: '12px 16px', 
+                border: chartProvider === provider ? '1px solid #06b6d4' : '1px solid #1e293b', 
+                background: chartProvider === provider ? 'rgba(6, 182, 212, 0.1)' : '#050b14',
+                borderRadius: '8px', 
                 cursor: 'pointer',
-                fontWeight: 'bold',
-                color: backgroundType === bg.id ? '#4ade80' : '#fff'
+                fontSize: '14px',
+                fontWeight: chartProvider === provider ? 'bold' : 'normal',
+                color: chartProvider === provider ? '#22d3ee' : '#fff'
               }}
             >
-              {bg.name}
+              {provider}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Reset */}
-      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', border: '1px solid #333' }}>
-        <h3 style={{ fontSize: '16px', color: '#ef4444', marginBottom: '5px' }}>Reset EFB</h3>
-        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Clears all local data and reloads the app.</p>
-        <button 
-          onClick={handleReset}
-          style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer' }}
-        >
-          Reset App Data
-        </button>
+      {/* Home screen background */}
+      <div style={{ background: '#0a1128', border: '1px solid #1e293b', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px', fontWeight: 'bold' }}>Home screen background</h3>
+        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Choose the wallpaper for your home screen.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+          {['Default', 'Engine', 'Sky'].map(bg => (
+            <div 
+              key={bg}
+              onClick={() => handleBackgroundChange(bg)}
+              style={{
+                height: '90px',
+                border: backgroundType === bg ? '2px solid #06b6d4' : '1px solid #1e293b',
+                background: '#050b14',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                paddingBottom: '10px',
+                position: 'relative'
+              }}
+            >
+              <span style={{ fontSize: '13px', fontWeight: 'bold', color: backgroundType === bg ? '#22d3ee' : '#fff' }}>{bg}</span>
+              {backgroundType === bg && <span style={{ fontSize: '10px', color: '#06b6d4', marginTop: '2px' }}>Active</span>}
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Realistic mode */}
+      <div style={{ background: '#0a1128', border: '1px solid #1e293b', borderRadius: '12px', padding: '20px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+          <div>
+            <h3 style={{ fontSize: '16px', margin: 0, fontWeight: 'bold' }}>Realistic mode</h3>
+            <p style={{ color: '#888', fontSize: '12px', margin: '5px 0 0 0' }}>Wi-Fi or cellular mode must be on in order to access the internet.</p>
+          </div>
+          <div 
+            onClick={handleRealisticToggle}
+            style={{
+              width: '44px',
+              height: '24px',
+              background: realisticMode ? '#06b6d4' : '#334155',
+              borderRadius: '12px',
+              position: 'relative',
+              cursor: 'pointer',
+              transition: 'background 0.2s'
+            }}
+          >
+            <div style={{
+              width: '20px',
+              height: '20px',
+              background: '#fff',
+              borderRadius: '50%',
+              position: 'absolute',
+              top: '2px',
+              left: realisticMode ? '22px' : '2px',
+              transition: 'left 0.2s'
+            }} />
+          </div>
+        </div>
+      </div>
+
     </div>
   );
 }
