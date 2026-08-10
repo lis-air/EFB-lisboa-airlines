@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Home from './Home';
+import Dashboard from './Dashboard';
 import Weather from './Weather';
 import Settings from './Settings';
-import Takeoff from './Takeoff';
-import Landing from './Landing';
 import Login from './Login';
 
 export default function App() {
@@ -79,11 +77,9 @@ export default function App() {
 
       {/* Conteúdo Dinâmico do Ecrã */}
       <div style={{ flex: 1, overflowY: 'auto', padding: 30, zIndex: 1, position: 'relative' }}>
-        {currentScreen === 'home' && <Home onNavigate={setCurrentScreen} />}
+        {currentScreen === 'home' && <Dashboard onNavigate={setCurrentScreen} />}
         {currentScreen === 'weather' && <Weather />}
         {currentScreen === 'settings' && <Settings />}
-        {currentScreen === 'takeoff' && <Takeoff />}
-        {currentScreen === 'landing' && <Landing />}
       </div>
     </div>
   );
