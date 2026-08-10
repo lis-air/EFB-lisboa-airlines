@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Cloud, Search, RefreshCw, AlertCircle, Wind, Compass, Thermometer, Eye } from 'lucide-react';
+import { Cloud, Search, RefreshCw, AlertCircle } from 'lucide-react';
 
 export default function Weather() {
   const [icao, setIcao] = useState('LPPT');
@@ -16,32 +16,41 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // Usar o serviço de METAR em texto plano da NOAA via proxy público seguro para evitar CORS
+      // 1. Tentar NOAA diretamente (às vezes funciona sem CORS dependendo do host)
       const response = await fetch(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`);
       
-      if (!response.ok) {
-        throw new Error('Aeroporto não encontrado ou código ICAO inválido.');
-      }
-      
-      const text = await response.text();
-      const lines = text.trim().split('\n');
-      const metarText = lines.length > 1 ? lines[lines.length - 1] : text;
-
-      setRawMetar(metarText);
-    } catch (err) {
-      console.error(err);
-      try {
-        // Fallback para outra API pública caso a NOAA falhe
-        const fallbackRes = `https://api.checkwx.com/metar/${code}/decoded`; // apenas exemplo, vamos usar o proxy do aviationweather text
-        const altRes = await fetch(`https://aviationweather.gov/cgi-bin/data/metar.php?ids=${code}&format=raw`);
-        const altText = await altRes.text();
-        if (altText && altText.trim().length > 5) {
-          setRawMetar(altText.trim());
+      if (response.ok) {
+        const text = await response.text();
+        const lines = text.trim().split('\n');
+        const metarText = lines.length > 1 ? lines[lines.length - 1] : text;
+        if (metarText && metarText.length > 5) {
+          setRawMetar(metarText);
           setLoading(false);
           return;
         }
-      } catch (e) {}
+      }
 
+      // 2. Fallback usando CORS Proxy para o AviationWeather oficial atualizado
+      const proxyUrl = `https://corsproxy.io/?https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
+      const altRes = await fetch(proxyUrl);
+      
+      if (altRes.ok) {
+        const data = await altRes.json();
+        if (Array.isArray(data) && data.length > 0 && data[0].rawOb) {
+          setRawMetar(data[0].rawOb);
+          setLoading(false);
+          return;
+        } else if (data.rawOb) {
+          setRawMetar(data.rawOb);
+          setLoading(false);
+          return;
+        }
+      }
+
+      throw new Error('Aeroporto não encontrado ou dados indisponíveis.');
+
+    } catch (err) {
+      console.error(err);
       setError('Não foi possível carregar o METAR. Verifique se o código ICAO está correto (ex: LPPT, LPPR).');
     } finally {
       setLoading(false);
