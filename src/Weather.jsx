@@ -16,20 +16,17 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // URL oficial do Aviation Weather formatado em JSON
+      // URL oficial da Aviation Weather API
       const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
-      // Usar o AllOrigins como proxy CORS seguro
+      // Usar o proxy AllOrigins para evitar qualquer bloqueio de CORS do navegador
       const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
       
       const response = await fetch(proxyUrl);
-      
-      if (!response.ok) {
-        throw new Error('Erro ao ligar ao serviço de meteorologia.');
-      }
+      if (!response.ok) throw new Error('Erro ao obter dados meteorológicos.');
 
       const data = await response.json();
-      
       let metarText = null;
+
       if (Array.isArray(data) && data.length > 0) {
         metarText = data[0].rawOb || data[0].raw_text;
       } else if (data && data.rawOb) {
@@ -39,9 +36,8 @@ export default function Weather() {
       if (metarText) {
         setRawMetar(metarText);
       } else {
-        throw new Error('METAR não encontrado para este aeroporto.');
+        throw new Error('METAR não encontrado.');
       }
-
     } catch (err) {
       console.error(err);
       setError('Não foi possível carregar o METAR. Verifique se o código ICAO está correto (ex: LPPT, LPPR).');
