@@ -7,21 +7,19 @@ import Landing from './Landing';
 
 export default function App() {
   const [currentScreen, setCurrentScreen] = useState('home');
-  const [backgroundType, setBackgroundType] = useState('classic');
+  const [backgroundType, setBackgroundType] = useState('default');
 
-  // Carregar e escutar alterações nas definições de fundo
+  // Carregar e escutar alterações nas definições e fundo
   useEffect(() => {
     const updateBg = () => {
-      const bg = localStorage.getItem('home_background') || 'classic';
-      setBackgroundType(bg);
+      const bg = localStorage.getItem('home_background') || 'default';
+      setBackgroundType(bg.toLowerCase());
     };
 
     updateBg();
     window.addEventListener('storage', updateBg);
-    
-    // Evento personalizado para atualização instantânea
     window.addEventListener('settingsChanged', updateBg);
-
+    
     return () => {
       window.removeEventListener('storage', updateBg);
       window.removeEventListener('settingsChanged', updateBg);
@@ -49,7 +47,7 @@ export default function App() {
         opacity: 0.18,
         pointerEvents: 'none',
         zIndex: 0,
-        background: backgroundType === 'logo' 
+        background: backgroundType === 'logo' || backgroundType === 'engine'
           ? 'radial-gradient(circle, rgba(19,135,75,0.3) 0%, rgba(0,0,0,0.8) 100%)' 
           : 'linear-gradient(135deg, #0d1117 0%, #161b22 100%)'
       }} />
@@ -78,6 +76,29 @@ export default function App() {
           <span style={{ fontWeight: 700, color: '#fff', fontSize: 16, textTransform: 'uppercase', letterSpacing: '1px' }}>
             Lisboa Airlines EFB — {currentScreen}
           </span>
+        </div>
+
+        {/* Menu rápido de navegação */}
+        <div style={{ display: 'flex', gap: 10 }}>
+          {['home', 'weather', 'takeoff', 'landing', 'settings'].map((screen) => (
+            <button
+              key={screen}
+              onClick={() => setCurrentScreen(screen)}
+              style={{
+                background: currentScreen === screen ? '#13874B' : 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: '#fff',
+                padding: '6px 12px',
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontSize: 12,
+                fontWeight: 600,
+                textTransform: 'capitalize'
+              }}
+            >
+              {screen}
+            </button>
+          ))}
         </div>
       </div>
 
