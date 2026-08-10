@@ -18,43 +18,41 @@ export default function Weather() {
     setError(null);
     setRawMetar(null);
 
-    try {
-      // Usar a API pública da AvWX que suporta CORS nativamente para aplicações web
-      const response = await fetch(`https://avwx.rest/api/metar/${code}`, {
-        headers: {
-          // Token público de teste da AVWX para evitar bloqueios totais
-          'Authorization': 'BEARER public'
-        }
-      });
+    // Sistema de Timeout (7 segundos) para nunca ficar preso em infinito
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
 
-      if (!response.ok) throw new Error('Aeroporto não encontrado.');
+    try {
+      const targetUrl = `https://aviationweather.gov/api/data/metar?ids=${code}&format=json`;
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`;
+
+      const response = await fetch(proxyUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) throw new Error('Erro na resposta do servidor.');
 
       const data = await response.json();
-      
-      if (data && data.raw) {
-        setRawMetar(data.raw);
+      let metarText = null;
+
+      if (Array.isArray(data) && data.length > 0) {
+        metarText = data[0].rawOb || data[0].raw_text;
+      } else if (data && data.rawOb) {
+        metarText = data.rawOb;
+      }
+
+      if (metarText) {
+        setRawMetar(metarText);
       } else {
-        setError('METAR não disponível para este aeroporto.');
+        setError('Aeroporto não encontrado ou sem METAR disponível.');
       }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error(err);
-      // Fallback ultra-seguro usando proxy AllOrigins limpo caso o AVWX falhe
-      try {
-        const backupUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(`https://tgftp.nws.noaa.gov/data/observations/metar/stations/${code}.TXT`)}`;
-        const backupRes = await fetch(backupUrl);
-        if (backupRes.ok) {
-          const text = await backupRes.text();
-          const lines = text.trim().split('\n');
-          const metarText = lines.length > 1 ? lines[lines.length - 1] : text;
-          if (metarText && metarText.length > 5) {
-            setRawMetar(metarText.trim());
-            setLoading(false);
-            return;
-          }
-        }
-      } catch (e) {}
-
-      setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
+      if (err.name === 'AbortError') {
+        setError('O pedido demorou demasiado tempo. Tenta novamente.');
+      } else {
+        setError('Não foi possível carregar o METAR. Verifica se o código ICAO está correto.');
+      }
     } finally {
       setLoading(false);
     }
