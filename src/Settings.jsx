@@ -1,127 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, RotateCcw } from 'lucide-react';
 
 export default function Settings() {
   const [username, setUsername] = useState('');
-  const [chartProvider, setChartProvider] = useState('navigraph');
+  const [chartProvider, setChartProvider] = useState('Navigraph Charts (Web)');
   const [backgroundType, setBackgroundType] = useState('classic');
 
+  // Carregar dados quando a página abre
   useEffect(() => {
     setUsername(localStorage.getItem('simbrief_username') || '');
-    setChartProvider(localStorage.getItem('chart_provider') || 'navigraph');
+    setChartProvider(localStorage.getItem('chart_provider') || 'Navigraph Charts (Web)');
     setBackgroundType(localStorage.getItem('home_background') || 'classic');
   }, []);
 
-  const saveSettings = () => {
-    localStorage.setItem('simbrief_username', username);
-    localStorage.setItem('chart_provider', chartProvider);
-    localStorage.setItem('home_background', backgroundType);
-    alert('Definições guardadas com sucesso!');
-    window.location.reload();
+  // Gravar automaticamente ao escrever o Username e avisar a App
+  const handleUsernameChange = (e) => {
+    const val = e.target.value;
+    setUsername(val);
+    localStorage.setItem('simbrief_username', val);
+    window.dispatchEvent(new Event('settingsChanged'));
+  };
+
+  const handleChartChange = (provider) => {
+    setChartProvider(provider);
+    localStorage.setItem('chart_provider', provider);
+    window.dispatchEvent(new Event('settingsChanged'));
+  };
+
+  const handleBackgroundChange = (bg) => {
+    setBackgroundType(bg);
+    localStorage.setItem('home_background', bg);
+    window.dispatchEvent(new Event('settingsChanged'));
   };
 
   const handleReset = () => {
-    if (window.confirm('Tens a certeza que pretendes limpar os dados?')) {
+    if (window.confirm('Clear all local data and reload the app?')) {
       localStorage.clear();
       window.location.reload();
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#fff', fontFamily: "'Inter', sans-serif", maxWidth: 900, margin: '0 auto', width: '100%' }}>
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 16, padding: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-          <SettingsIcon size={24} style={{ color: '#38bdf8' }} />
-          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#38bdf8' }}>Settings</h2>
-        </div>
-        <p style={{ fontSize: 13, color: '#888', marginTop: -10, marginBottom: 24 }}>Manage your EFB preferences and configuration</p>
+    <div className="settings-container" style={{ padding: '20px', color: '#fff', maxWidth: '1000px' }}>
+      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '5px' }}>Settings</h2>
+      <p style={{ color: '#888', fontSize: '14px', marginBottom: '30px' }}>Manage your EFB preferences</p>
 
-        {/* SimBrief Username */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>SimBrief Username / ID</label>
-          <input 
-            type="text" 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Insere o teu username do SimBrief"
-            style={{ width: '100%', background: 'rgba(0,0,0,0.50)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 14px', borderRadius: 8, color: '#fff', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
-          />
-        </div>
+      {/* SimBrief */}
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>SimBrief</h3>
+        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Your SimBrief username for flight plan downloads.</p>
+        <input 
+          type="text" 
+          value={username} 
+          onChange={handleUsernameChange}
+          style={{ width: '100%', background: '#0a0a0a', border: '1px solid #333', color: '#fff', padding: '12px', borderRadius: '6px' }}
+        />
+      </div>
 
-        {/* Charts Provider */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>Charts Provider</label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-            {[
-              { id: 'navigraph', name: 'Navigraph Charts (Web)' },
-              { id: 'lido', name: 'MSFS24 Lido (Web)' },
-              { id: 'chartfox', name: 'ChartFox (Web)' }
-            ].map(item => (
-              <button 
-                key={item.id}
-                onClick={() => setChartProvider(item.id)}
-                style={{
-                  background: chartProvider === item.id ? 'rgba(19, 135, 75, 0.2)' : 'rgba(0,0,0,0.4)',
-                  border: chartProvider === item.id ? '1px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
-                  padding: '12px',
-                  borderRadius: 8,
-                  color: '#fff',
-                  cursor: 'pointer',
-                  fontWeight: 600,
-                  fontSize: 13,
-                  textAlign: 'center'
-                }}
-              >
-                {item.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Home screen background */}
-        <div style={{ marginBottom: 24 }}>
-          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>Home Screen Background</label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
-            {[
-              { id: 'classic', name: 'Lisboa Classic' },
-              { id: 'logo', name: 'Lisboa Logo' }
-            ].map(item => (
-              <div 
-                key={item.id}
-                onClick={() => setBackgroundType(item.id)}
-                style={{
-                  background: 'rgba(0,0,0,0.5)',
-                  border: backgroundType === item.id ? '2px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: 12,
-                  padding: 20,
-                  cursor: 'pointer',
-                  textAlign: 'center',
-                  transition: 'all 0.2s'
-                }}
-              >
-                <span style={{ fontSize: 14, fontWeight: 'bold', color: backgroundType === item.id ? '#4ade80' : '#fff' }}>{item.name}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Save Button */}
-        <button 
-          onClick={saveSettings}
-          style={{ width: '100%', background: '#13874B', border: 'none', color: '#fff', padding: 14, borderRadius: 10, fontWeight: 'bold', fontSize: 15, cursor: 'pointer', marginBottom: 20 }}
-        >
-          SAVE CHANGES
-        </button>
-
-        {/* Reset EFB */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20 }}>
-          <button 
-            onClick={handleReset}
-            style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#f87171', padding: '10px 16px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+      {/* Charts */}
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>Charts</h3>
+        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Choose your preferred charts provider.</p>
+        {['Navigraph Charts (Web)', 'MSFS24 Lido (Web)', 'ChartFox (Web)'].map(provider => (
+          <div 
+            key={provider}
+            onClick={() => handleChartChange(provider)}
+            style={{ 
+              padding: '12px', 
+              border: chartProvider === provider ? '1px solid #13874B' : '1px solid #333', 
+              background: chartProvider === provider ? 'rgba(19, 135, 75, 0.1)' : 'transparent',
+              marginBottom: '8px', 
+              borderRadius: '6px', 
+              cursor: 'pointer' 
+            }}
           >
-            <RotateCcw size={16} /> Reset EFB (Limpar Dados)
-          </button>
+            {provider}
+          </div>
+        ))}
+      </div>
+
+      {/* Home screen background */}
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', marginBottom: '20px', border: '1px solid #333' }}>
+        <h3 style={{ fontSize: '16px', marginBottom: '5px' }}>Home screen background</h3>
+        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Choose the wallpaper for your home screen from the official options below.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+          {[
+            { id: 'classic', name: 'Lisboa Classic' },
+            { id: 'logo', name: 'Lisboa Logo' }
+          ].map(bg => (
+            <div 
+              key={bg.id}
+              onClick={() => handleBackgroundChange(bg.id)}
+              style={{
+                padding: '20px',
+                textAlign: 'center',
+                border: backgroundType === bg.id ? '1px solid #13874B' : '1px solid #333',
+                background: backgroundType === bg.id ? 'rgba(19, 135, 75, 0.1)' : 'transparent',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                fontWeight: 'bold',
+                color: backgroundType === bg.id ? '#4ade80' : '#fff'
+              }}
+            >
+              {bg.name}
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* Reset */}
+      <div style={{ background: '#1a1a1a', borderRadius: '8px', padding: '20px', border: '1px solid #333' }}>
+        <h3 style={{ fontSize: '16px', color: '#ef4444', marginBottom: '5px' }}>Reset EFB</h3>
+        <p style={{ color: '#888', fontSize: '12px', marginBottom: '15px' }}>Clears all local data and reloads the app.</p>
+        <button 
+          onClick={handleReset}
+          style={{ background: 'transparent', border: '1px solid #ef4444', color: '#ef4444', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          Reset App Data
+        </button>
       </div>
     </div>
   );
