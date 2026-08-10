@@ -1,186 +1,136 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Check, Trash2, AlertCircle } from 'lucide-react';
+import { Settings as SettingsIcon, RotateCcw } from 'lucide-react';
 
 export default function Settings() {
-  const [simbriefUser, setSimbriefUser] = useState('');
-  const [selectedChart, setSelectedChart] = useState('navigraph');
-  const [selectedBg, setSelectedBg] = useState('classic');
-  
-  const [initialState, setInitialState] = useState({
-    simbriefUser: '',
-    selectedChart: 'navigraph',
-    selectedBg: 'classic'
-  });
-
-  const [hasChanges, setHasChanges] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [username, setUsername] = useState('');
+  const [chartProvider, setChartProvider] = useState('navigraph');
+  const [backgroundType, setBackgroundType] = useState('classic');
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('simbrief_username') || '';
-    const savedChart = localStorage.getItem('charts_provider') || 'navigraph';
-    const savedBg = localStorage.getItem('home_background') || 'classic';
-
-    setSimbriefUser(savedUser);
-    setSelectedChart(savedChart);
-    setSelectedBg(savedBg);
-
-    setInitialState({
-      simbriefUser: savedUser,
-      selectedChart: savedChart,
-      selectedBg: savedBg
-    });
+    setUsername(localStorage.getItem('simbrief_username') || '');
+    setChartProvider(localStorage.getItem('chart_provider') || 'navigraph');
+    setBackgroundType(localStorage.getItem('home_background') || 'classic');
   }, []);
 
-  // Detetar se houve alterações face ao estado guardado
-  useEffect(() => {
-    const changed = 
-      simbriefUser !== initialState.simbriefUser ||
-      selectedChart !== initialState.selectedChart ||
-      selectedBg !== initialState.selectedBg;
-    
-    setHasChanges(changed);
-  }, [simbriefUser, selectedChart, selectedBg, initialState]);
+  const handleUsernameChange = (e) => {
+    const val = e.target.value;
+    setUsername(val);
+    localStorage.setItem('simbrief_username', val);
+    window.dispatchEvent(new Event('settingsChanged'));
+  };
 
-  const handleSave = () => {
-    localStorage.setItem('simbrief_username', simbriefUser.trim());
-    localStorage.setItem('charts_provider', selectedChart);
-    localStorage.setItem('home_background', selectedBg);
+  const handleChartChange = (provider) => {
+    setChartProvider(provider);
+    localStorage.setItem('chart_provider', provider);
+    window.dispatchEvent(new Event('settingsChanged'));
+  };
 
-    setInitialState({
-      simbriefUser: simbriefUser.trim(),
-      selectedChart,
-      selectedBg
-    });
-    
-    setHasChanges(false);
-    setSuccess(true);
-    setTimeout(() => setSuccess(false), 3000);
+  const handleBackgroundChange = (bg) => {
+    setBackgroundType(bg);
+    localStorage.setItem('home_background', bg);
+    window.dispatchEvent(new Event('settingsChanged'));
   };
 
   const handleReset = () => {
-    if (window.confirm('Tens a certeza que pretendes reiniciar o EFB? Todos os dados locais serão apagados.')) {
+    if (window.confirm('Tens a certeza que pretendes reiniciar todas as definições?')) {
       localStorage.clear();
+      setUsername('');
+      setChartProvider('navigraph');
+      setBackgroundType('classic');
+      window.dispatchEvent(new Event('settingsChanged'));
       window.location.reload();
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#fff', fontFamily: "'Inter', sans-serif", paddingBottom: 40, position: 'relative' }}>
-      
-      {/* Cabeçalho */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Settings</h2>
-          <p style={{ fontSize: 14, color: '#888', marginTop: 4 }}>Manage your EFB preferences</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 24, color: '#fff', fontFamily: "'Inter', sans-serif", maxWidth: 900, margin: '0 auto', width: '100%' }}>
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: 16, padding: 24, boxShadow: '0 8px 32px rgba(0,0,0,0.4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <SettingsIcon size={24} style={{ color: '#38bdf8' }} />
+          <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0, color: '#38bdf8' }}>Settings</h2>
+        </div>
+        <p style={{ fontSize: 13, color: '#888', marginTop: -10, marginBottom: 24 }}>Manage your EFB preferences and configuration</p>
+
+        {/* SimBrief Username */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>SimBrief Username / ID</label>
+          <input 
+            type="text" 
+            value={username} 
+            onChange={handleUsernameChange}
+            placeholder="Insere o teu username do SimBrief"
+            style={{ width: '100%', background: 'rgba(0,0,0,0.50)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 14px', borderRadius: 8, color: '#fff', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
+          />
+          <span style={{ fontSize: 11, color: '#888', marginTop: 4, display: 'block' }}>Guardado automaticamente ao escrever.</span>
         </div>
 
-        {/* Alerta / Botão de Save dinâmico no TOPO */}
-        {hasChanges && (
-          <div style={{ background: 'rgba(19, 135, 75, 0.15)', border: '1px solid #13874B', padding: '10px 18px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12, animation: 'fadeIn 0.2s ease-in-out' }}>
-            <span style={{ fontSize: 13, color: '#4ade80', fontWeight: 600 }}>You have unsaved changes</span>
-            <button 
-              onClick={handleSave}
-              style={{ background: '#13874B', border: 'none', color: '#fff', padding: '8px 16px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13 }}
-            >
-              <Save size={15} /> Save Changes
-            </button>
+        {/* Charts Provider */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>Charts Provider</label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
+            {[
+              { id: 'navigraph', name: 'Navigraph Charts (Web)' },
+              { id: 'lido', name: 'MSFS24 Lido (Web)' },
+              { id: 'chartfox', name: 'ChartFox (Web)' }
+            ].map(item => (
+              <button 
+                key={item.id}
+                onClick={() => handleChartChange(item.id)}
+                style={{
+                  background: chartProvider === item.id ? 'rgba(19, 135, 75, 0.2)' : 'rgba(0,0,0,0.4)',
+                  border: chartProvider === item.id ? '1px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
+                  padding: '12px',
+                  borderRadius: 8,
+                  color: '#fff',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: 13,
+                  textAlign: 'center'
+                }}
+              >
+                {item.name}
+              </button>
+            ))}
           </div>
-        )}
-
-        {success && !hasChanges && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#4ade80', fontSize: 14, fontWeight: 600 }}>
-            <Check size={18} /> Definições guardadas com sucesso!
-          </div>
-        )}
-      </div>
-
-      {/* SimBrief Username */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: 20, borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <label style={{ fontSize: 14, fontWeight: 600 }}>SimBrief</label>
-        <span style={{ fontSize: 12, color: '#888' }}>Your SimBrief username for flight plan downloads.</span>
-        <input 
-          type="text" 
-          value={simbriefUser} 
-          onChange={(e) => setSimbriefUser(e.target.value)}
-          placeholder="Insere o teu username do SimBrief"
-          style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 16px', borderRadius: 8, color: '#fff', fontSize: 14, outline: 'none' }}
-        />
-      </div>
-
-      {/* Charts Provider */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: 20, borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <label style={{ fontSize: 14, fontWeight: 600 }}>Charts</label>
-        <span style={{ fontSize: 12, color: '#888' }}>Choose your preferred charts provider.</span>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {[
-            { id: 'navigraph', label: 'Navigraph Charts (Web)' },
-            { id: 'msfs24', label: 'MSFS24 Lido (Web)' },
-            { id: 'chartfox', label: 'ChartFox (Web)' }
-          ].map((item) => (
-            <div 
-              key={item.id}
-              onClick={() => setSelectedChart(item.id)}
-              style={{ 
-                padding: '12px 16px', 
-                background: selectedChart === item.id ? 'rgba(19, 135, 75, 0.15)' : 'rgba(0,0,0,0.4)', 
-                border: `1px solid ${selectedChart === item.id ? '#13874B' : 'rgba(255,255,255,0.1)'}`, 
-                borderRadius: 8, 
-                cursor: 'pointer',
-                fontWeight: selectedChart === item.id ? '600' : 'normal',
-                color: selectedChart === item.id ? '#4ade80' : '#fff',
-                transition: 'all 0.2s'
-              }}
-            >
-              {item.label}
-            </div>
-          ))}
         </div>
-      </div>
 
-      {/* Home Screen Background */}
-      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: 20, borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <label style={{ fontSize: 14, fontWeight: 600 }}>Home screen background</label>
-        <span style={{ fontSize: 12, color: '#888' }}>Choose the wallpaper for your home screen from the official options below.</span>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
-          {[
-            { id: 'classic', label: 'Lisboa Classic' },
-            { id: 'logo', label: 'Lisboa Logo' }
-          ].map((bg) => (
-            <div 
-              key={bg.id}
-              onClick={() => setSelectedBg(bg.id)}
-              style={{ 
-                border: `2px solid ${selectedBg === bg.id ? '#13874B' : 'rgba(255,255,255,0.1)'}`, 
-                borderRadius: 10, 
-                padding: 10, 
-                cursor: 'pointer',
-                background: 'rgba(0,0,0,0.4)',
-                textAlign: 'center'
-              }}
-            >
-              <div style={{ height: 90, background: '#111', borderRadius: 6, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666', fontSize: 12 }}>
-                {bg.label}
+        {/* Home screen background */}
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 8 }}>Home Screen Background</label>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 15 }}>
+            {[
+              { id: 'classic', name: 'Lisboa Classic' },
+              { id: 'logo', name: 'Lisboa Logo' }
+            ].map(item => (
+              <div 
+                key={item.id}
+                onClick={() => handleBackgroundChange(item.id)}
+                style={{
+                  background: 'rgba(0,0,0,0.5)',
+                  border: backgroundType === item.id ? '2px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: 12,
+                  padding: 20,
+                  cursor: 'pointer',
+                  textAlign: 'center',
+                  transition: 'all 0.2s'
+                }}
+              >
+                <span style={{ fontSize: 14, fontWeight: 'bold', color: backgroundType === item.id ? '#4ade80' : '#fff' }}>{item.name}</span>
               </div>
-              <span style={{ fontSize: 13, fontWeight: selectedBg === bg.id ? 'bold' : 'normal' }}>{bg.label}</span>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Reset EFB */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20, marginTop: 20 }}>
+          <button 
+            onClick={handleReset}
+            style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#f87171', padding: '10px 16px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+          >
+            <RotateCcw size={16} /> Reset EFB (Limpar Dados)
+          </button>
         </div>
       </div>
-
-      {/* Reset EFB */}
-      <div style={{ background: 'rgba(255,77,77,0.05)', border: '1px solid rgba(255,77,77,0.2)', padding: 20, borderRadius: 14, display: 'flex', flexDirection: 'column', gap: 10, marginTop: 10 }}>
-        <label style={{ fontSize: 14, fontWeight: 600, color: '#ff4d4d' }}>Reset EFB</label>
-        <span style={{ fontSize: 12, color: '#888' }}>Clears all local data and reloads the app.</span>
-        <button 
-          onClick={handleReset}
-          style={{ background: 'transparent', border: '1px solid #ff4d4d', color: '#ff4d4d', padding: '10px 18px', borderRadius: 8, fontWeight: 'bold', cursor: 'pointer', width: 'fit-content', display: 'flex', alignItems: 'center', gap: 6 }}
-        >
-          <Trash2 size={16} /> Reset App Data
-        </button>
-      </div>
-
     </div>
   );
 }
