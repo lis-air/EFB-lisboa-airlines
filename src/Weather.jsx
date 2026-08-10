@@ -19,7 +19,6 @@ export default function Weather() {
     setRawMetar(null);
 
     try {
-      // Usar a API pública da VATSIM diretamente no browser (sem backend/serverless)
       const response = await fetch(`https://metar.vatsim.net/vatsim-metar.php?id=${code}`);
       const text = await response.text();
 
@@ -38,8 +37,6 @@ export default function Weather() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, color: '#fff', fontFamily: "'Inter', sans-serif" }}>
-      
-      {/* Barra de Pesquisa */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.05)', padding: '15px 20px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.1)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Cloud size={24} style={{ color: '#13874B' }} />
@@ -65,7 +62,6 @@ export default function Weather() {
         </div>
       </div>
 
-      {/* Erro */}
       {error && (
         <div style={{ background: 'rgba(255, 77, 77, 0.12)', border: '1px solid #ff4d4d', padding: '16px 20px', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12, color: '#ff4d4d' }}>
           <AlertCircle size={22} />
@@ -73,7 +69,6 @@ export default function Weather() {
         </div>
       )}
 
-      {/* Loading */}
       {loading && (
         <div style={{ textAlign: 'center', padding: '40px', color: '#aaa' }}>
           <RefreshCw size={28} style={{ animation: 'spin 1s linear infinite' }} />
@@ -81,7 +76,6 @@ export default function Weather() {
         </div>
       )}
 
-      {/* Resultados */}
       {rawMetar && !loading && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 15 }}>
           <div style={{ background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(255,255,255,0.15)', padding: 22, borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
@@ -92,7 +86,6 @@ export default function Weather() {
           </div>
         </div>
       )}
-
     </div>
   );
 }
