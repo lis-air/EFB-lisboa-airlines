@@ -12,11 +12,13 @@ import Performance from './Performance';
 import Settings from './Settings';
 
 // ------------------------------------------------------------------
-// CONFIGURAÇÕES DO DISCORD
+// CONFIGURAÇÕES DO DISCORD (Dinâmico para localhost e Vercel)
 // ------------------------------------------------------------------
 const CLIENT_ID = "1536408790264582194"; 
 const GUILD_ID_REQUERIDO = "1473634134579478701"; 
-const REDIRECT_URI_STRING = "http://localhost:5173/"; 
+
+// Usa automaticamente o URL atual do site (localhost ou vercel.app)
+const REDIRECT_URI_STRING = window.location.origin + "/"; 
 const REDIRECT_URI = encodeURIComponent(REDIRECT_URI_STRING); 
 const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${REDIRECT_URI}&scope=identify%20guilds`;
 
