@@ -12,32 +12,17 @@ export default function Settings() {
     setBackgroundType(localStorage.getItem('home_background') || 'classic');
   }, []);
 
-  const handleUsernameChange = (e) => {
-    const val = e.target.value;
-    setUsername(val);
-    localStorage.setItem('simbrief_username', val);
-    window.dispatchEvent(new Event('settingsChanged'));
-  };
-
-  const handleChartChange = (provider) => {
-    setChartProvider(provider);
-    localStorage.setItem('chart_provider', provider);
-    window.dispatchEvent(new Event('settingsChanged'));
-  };
-
-  const handleBackgroundChange = (bg) => {
-    setBackgroundType(bg);
-    localStorage.setItem('home_background', bg);
-    window.dispatchEvent(new Event('settingsChanged'));
+  const saveSettings = () => {
+    localStorage.setItem('simbrief_username', username);
+    localStorage.setItem('chart_provider', chartProvider);
+    localStorage.setItem('home_background', backgroundType);
+    alert('Definições guardadas com sucesso!');
+    window.location.reload();
   };
 
   const handleReset = () => {
-    if (window.confirm('Tens a certeza que pretendes reiniciar todas as definições?')) {
+    if (window.confirm('Tens a certeza que pretendes limpar os dados?')) {
       localStorage.clear();
-      setUsername('');
-      setChartProvider('navigraph');
-      setBackgroundType('classic');
-      window.dispatchEvent(new Event('settingsChanged'));
       window.location.reload();
     }
   };
@@ -57,11 +42,10 @@ export default function Settings() {
           <input 
             type="text" 
             value={username} 
-            onChange={handleUsernameChange}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="Insere o teu username do SimBrief"
             style={{ width: '100%', background: 'rgba(0,0,0,0.50)', border: '1px solid rgba(255,255,255,0.2)', padding: '12px 14px', borderRadius: 8, color: '#fff', fontWeight: 'bold', outline: 'none', boxSizing: 'border-box' }} 
           />
-          <span style={{ fontSize: 11, color: '#888', marginTop: 4, display: 'block' }}>Guardado automaticamente ao escrever.</span>
         </div>
 
         {/* Charts Provider */}
@@ -75,7 +59,7 @@ export default function Settings() {
             ].map(item => (
               <button 
                 key={item.id}
-                onClick={() => handleChartChange(item.id)}
+                onClick={() => setChartProvider(item.id)}
                 style={{
                   background: chartProvider === item.id ? 'rgba(19, 135, 75, 0.2)' : 'rgba(0,0,0,0.4)',
                   border: chartProvider === item.id ? '1px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
@@ -104,7 +88,7 @@ export default function Settings() {
             ].map(item => (
               <div 
                 key={item.id}
-                onClick={() => handleBackgroundChange(item.id)}
+                onClick={() => setBackgroundType(item.id)}
                 style={{
                   background: 'rgba(0,0,0,0.5)',
                   border: backgroundType === item.id ? '2px solid #13874B' : '1px solid rgba(255,255,255,0.1)',
@@ -121,8 +105,16 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Save Button */}
+        <button 
+          onClick={saveSettings}
+          style={{ width: '100%', background: '#13874B', border: 'none', color: '#fff', padding: 14, borderRadius: 10, fontWeight: 'bold', fontSize: 15, cursor: 'pointer', marginBottom: 20 }}
+        >
+          SAVE CHANGES
+        </button>
+
         {/* Reset EFB */}
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20, marginTop: 20 }}>
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20 }}>
           <button 
             onClick={handleReset}
             style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #ef4444', color: '#f87171', padding: '10px 16px', borderRadius: 8, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
