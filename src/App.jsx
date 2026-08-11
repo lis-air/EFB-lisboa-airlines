@@ -26,9 +26,9 @@ const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIEN
 // PROVEDORES DE CARTAS — tem de bater certo com as opções em Settings.jsx
 // ------------------------------------------------------------------
 const CHART_PROVIDERS = {
-  'Navigraph Charts (App)': { label: 'Navigraph', url: 'https://charts.navigraph.com' },
-  'MSFS24 Lido (Web)': { label: 'MSFS24 Lido', url: 'https://planner.flightsimulator.com/landing.html' },
-  'ChartFox (Web)': { label: 'ChartFox', url: 'https://chartfox.org' },
+  'Navigraph Charts (App)': { label: 'Navigraph', url: 'https://charts.navigraph.com', external: false },
+  'MSFS24 Lido (Web)': { label: 'MSFS24 Lido', url: 'https://planner.flightsimulator.com/landing.html', external: true },
+  'ChartFox (Web)': { label: 'ChartFox', url: 'https://chartfox.org', external: true },
 };
 const DEFAULT_CHART_PROVIDER = 'Navigraph Charts (App)';
 
@@ -211,13 +211,21 @@ function IpadHome() {
     { name: 'Settings', path: '/settings', icon: <SettingsIcon size={40} />, bg: 'linear-gradient(135deg, #434343, #000000)' },
   ];
 
+  const openApp = (app) => {
+    if (app.path === '/charts' && chartInfo.external) {
+      window.open(chartInfo.url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    navigate(app.path);
+  };
+
   return (
     <PageTransition>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '40px 70px', justifyContent: 'space-between', fontFamily: "'Inter', sans-serif" }}>
         <h2 style={{ color: '#fff', textAlign: 'center', fontWeight: 600, fontSize: 26, letterSpacing: '-0.5px', textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}>Lisboa Airlines Flight Bag</h2>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '30px 50px', justifyItems: 'center' }}>
           {apps.map((app, i) => (
-            <div key={i} onClick={() => navigate(app.path)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+            <div key={i} onClick={() => openApp(app)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.06)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
               <div style={{ width: 85, height: 85, borderRadius: 20, background: app.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 8px 20px rgba(0,0,0,0.5)' }}>{app.icon}</div>
               <span style={{ color: '#fff', fontSize: 13, marginTop: 8, fontWeight: 500, letterSpacing: '-0.2px', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{app.name}</span>
             </div>
@@ -226,7 +234,7 @@ function IpadHome() {
         <div style={{ display: 'flex', justifyContent: 'center' }}>
           <div style={{ background: 'rgba(255, 255, 255, 0.12)', backdropFilter: 'blur(20px)', padding: '10px 25px', borderRadius: 24, display: 'flex', gap: 25, border: '1px solid rgba(255,255,255,0.2)' }}>
             {apps.slice(0, 4).map((app, i) => (
-              <div key={i} onClick={() => navigate(app.path)} style={{ width: 55, height: 55, borderRadius: 14, background: app.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer' }}>
+              <div key={i} onClick={() => openApp(app)} style={{ width: 55, height: 55, borderRadius: 14, background: app.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', cursor: 'pointer' }}>
                 {React.cloneElement(app.icon, { size: 26 })}
               </div>
             ))}
