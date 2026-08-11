@@ -137,28 +137,28 @@ function Performance({ type }) {
   };
 
   return (
-    <div className="view-container" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
+    <div className="view-container" style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
 
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', padding: '30px' }}>
-        <h2 style={{ fontSize: '1.8rem', display: 'flex', alignItems: 'center', gap: '15px', color: 'var(--brand-highlight)', marginBottom: '10px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px' }}>
-          <Icon size={28} /> FlightSmart+ {isTakeoff ? 'Takeoff' : 'Landing'}
+      <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', padding: '20px 24px' }}>
+        <h2 style={{ fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--brand-highlight)', marginBottom: '6px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>
+          <Icon size={22} /> FlightSmart+ {isTakeoff ? 'Takeoff' : 'Landing'}
         </h2>
 
         {loadingMsg && (
-          <p style={{ color: 'var(--vivid-cyan)', fontSize: '0.9rem', marginBottom: '10px' }}>{loadingMsg}</p>
+          <p style={{ color: 'var(--vivid-cyan)', fontSize: '0.75rem', marginBottom: '6px' }}>{loadingMsg}</p>
         )}
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.75rem', marginBottom: '20px' }}>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.65rem', marginBottom: '14px' }}>
           Estimated values for simulation use only — not real aircraft performance data.
         </p>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginBottom: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '18px' }}>
           <div>
-            <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '15px' }}>Auto-Fill from SimBrief</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '10px', fontSize: '0.95rem' }}>Auto-Fill from SimBrief</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <Field label="Airport" value={flightData.airport} />
               <Field label="Runway" value={flightData.rwy} />
               <Field label="Weight" value={flightData.weightLabel} />
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                 Aircraft: <b style={{ color: 'var(--vivid-cyan)' }}>{flightData.aircraftLabel}</b>
                 {flightData.mtowRatioPct !== null && (
                   <> · {flightData.mtowRatioPct}% of {isTakeoff ? 'MTOW' : 'MLW'}</>
@@ -168,25 +168,25 @@ function Performance({ type }) {
           </div>
 
           <div>
-            <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '15px' }}>Live Weather (METAR)</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '8px' }}>
-              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}><Wind size={20} color="var(--text-secondary)" /> <span>{flightData.windLabel}</span></div>
-              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}><Thermometer size={20} color="var(--text-secondary)" /> <span>{flightData.tempLabel}</span></div>
-              <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}><Droplets size={20} color="var(--text-secondary)" /> <span>{flightData.qnhLabel} hPa</span></div>
+            <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '10px', fontSize: '0.95rem' }}>Live Weather (METAR)</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', background: 'rgba(0,0,0,0.2)', padding: '12px 16px', borderRadius: '8px' }}>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '0.85rem' }}><Wind size={16} color="var(--text-secondary)" /> <span>{flightData.windLabel}</span></div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '0.85rem' }}><Thermometer size={16} color="var(--text-secondary)" /> <span>{flightData.tempLabel}</span></div>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', fontSize: '0.85rem' }}><Droplets size={16} color="var(--text-secondary)" /> <span>{flightData.qnhLabel} hPa</span></div>
             </div>
           </div>
         </div>
 
-        <div style={{ marginBottom: '25px' }}>
-          <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '15px' }}>Runway Available</h3>
-          <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+        <div style={{ marginBottom: '16px' }}>
+          <h3 style={{ color: 'var(--vivid-cyan)', marginBottom: '10px', fontSize: '0.95rem' }}>Runway Available</h3>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', fontSize: '0.85rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
               <input type="radio" checked={useFullRunway} onChange={() => setUseFullRunway(true)} />
               Full length
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
               <input type="radio" checked={!useFullRunway} onChange={() => setUseFullRunway(false)} />
-              Intersection departure — available length (m):
+              Intersection — available (m):
             </label>
             <input
               type="number"
@@ -195,52 +195,52 @@ function Performance({ type }) {
               value={availableRunway}
               onChange={(e) => setAvailableRunway(e.target.value)}
               placeholder="e.g. 1500"
-              style={{ width: '110px', padding: '8px 10px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: useFullRunway ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.3)', color: '#fff', opacity: useFullRunway ? 0.5 : 1 }}
+              style={{ width: '100px', padding: '6px 8px', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.2)', background: useFullRunway ? 'rgba(0,0,0,0.15)' : 'rgba(0,0,0,0.3)', color: '#fff', opacity: useFullRunway ? 0.5 : 1 }}
             />
           </div>
         </div>
 
-        <button onClick={handleCalculate} className="liquid-btn" style={{ width: '100%', padding: '15px', fontSize: '1.2rem', borderRadius: '8px' }}>
+        <button onClick={handleCalculate} className="liquid-btn" style={{ width: '100%', padding: '11px', fontSize: '1rem', borderRadius: '8px' }}>
           {calculating ? 'CALCULATING...' : 'CALCULATE PERFORMANCE'}
         </button>
       </div>
 
       {results && (
-        <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', padding: '30px', animation: 'fadeIn 0.5s ease' }}>
-          <h3 style={{ color: results.insufficient ? '#ff4d4d' : '#00FF88', marginBottom: '10px', fontSize: '1.5rem', textAlign: 'center' }}>
+        <div className="glass-panel" style={{ width: '100%', maxWidth: '800px', padding: '18px 24px', animation: 'fadeIn 0.5s ease' }}>
+          <h3 style={{ color: results.insufficient ? '#ff4d4d' : '#00FF88', marginBottom: '8px', fontSize: '1.1rem', textAlign: 'center' }}>
             {results.insufficient ? 'RUNWAY LENGTH INSUFFICIENT' : 'COMPUTATION SUCCESSFUL'}
           </h3>
           {results.insufficient && (
-            <p style={{ color: '#ff4d4d', textAlign: 'center', fontSize: '0.85rem', marginBottom: '15px' }}>
-              Even at TOGA thrust, the required distance exceeds the runway length available. Consider using a shorter intersection reduction or the full runway.
+            <p style={{ color: '#ff4d4d', textAlign: 'center', fontSize: '0.72rem', marginBottom: '10px' }}>
+              Even at TOGA, required distance exceeds available runway. Try full length or a shorter reduction.
             </p>
           )}
 
-          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '15px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>FLAPS SETTING</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#fff' }}>{results.flaps}</div>
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '10px 16px', marginBottom: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: 'var(--text-secondary)', fontSize: '0.7rem' }}>FLAPS SETTING</span>
+              <span style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#fff' }}>{results.flaps}</span>
             </div>
             {isTakeoff && results.flex === 'TOGA' && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'right', maxWidth: '260px' }}>
-                TOGA (full thrust) required — weight is close to or at MTOW for this profile, leaving no margin for a reduced-thrust (FLEX) takeoff.
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginTop: '4px', lineHeight: 1.3 }}>
+                TOGA required — weight near/at MTOW, no margin for FLEX.
               </div>
             )}
           </div>
 
           {isTakeoff ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', textAlign: 'center' }}>
-              <Result label="V1" value={results.v1} />
-              <Result label="VR" value={results.vr} />
-              <Result label="V2" value={results.v2} />
-              <Result label="FLEX" value={results.flex} highlight />
-              <Result label="TODIST" value={results.dist} span={4} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', textAlign: 'center' }}>
+              <Result label="V1" value={results.v1} compact />
+              <Result label="VR" value={results.vr} compact />
+              <Result label="V2" value={results.v2} compact />
+              <Result label="FLEX" value={results.flex} highlight compact />
+              <Result label="TODIST" value={results.dist} span={4} compact />
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', textAlign: 'center' }}>
-              <Result label="VAPP" value={results.vapp} />
-              <Result label="VREF" value={results.vref} />
-              <Result label="LDG DIST" value={results.dist} highlight />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', textAlign: 'center' }}>
+              <Result label="VAPP" value={results.vapp} compact />
+              <Result label="VREF" value={results.vref} compact />
+              <Result label="LDG DIST" value={results.dist} highlight compact />
             </div>
           )}
         </div>
@@ -258,11 +258,11 @@ function Field({ label, value }) {
   );
 }
 
-function Result({ label, value, highlight, span }) {
+function Result({ label, value, highlight, span, compact }) {
   return (
-    <div style={{ background: 'rgba(0,0,0,0.4)', padding: '20px', borderRadius: '8px', gridColumn: span ? `span ${span}` : undefined }}>
-      <div style={{ color: 'var(--text-secondary)' }}>{label}</div>
-      <div style={{ fontSize: '2rem', fontWeight: 'bold', color: highlight ? '#ffaa00' : '#fff' }}>{value}</div>
+    <div style={{ background: 'rgba(0,0,0,0.4)', padding: compact ? '10px' : '20px', borderRadius: '8px', gridColumn: span ? `span ${span}` : undefined }}>
+      <div style={{ color: 'var(--text-secondary)', fontSize: compact ? '0.7rem' : '1rem' }}>{label}</div>
+      <div style={{ fontSize: compact ? '1.3rem' : '2rem', fontWeight: 'bold', color: highlight ? '#ffaa00' : '#fff' }}>{value}</div>
     </div>
   );
 }
