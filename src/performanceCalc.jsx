@@ -44,9 +44,11 @@ export const AIRCRAFT_PROFILES = {
 };
 
 export function getAircraftProfile(icaoType) {
-  if (!icaoType) return AIRCRAFT_PROFILES.DEFAULT;
+  if (!icaoType) return { ...AIRCRAFT_PROFILES.DEFAULT, matched: false, matchedType: null };
   const key = icaoType.toUpperCase().trim();
-  return AIRCRAFT_PROFILES[key] || AIRCRAFT_PROFILES.DEFAULT;
+  const found = AIRCRAFT_PROFILES[key];
+  if (found) return { ...found, matched: true, matchedType: key };
+  return { ...AIRCRAFT_PROFILES.DEFAULT, matched: false, matchedType: null };
 }
 
 // Extrai vento (dir/spd em kt), temperatura (°C) e QNH (hPa) de um METAR bruto.

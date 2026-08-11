@@ -22,6 +22,7 @@ function Performance({ type }) {
     weightLabel: '---.-T',
     v1: '---', vr: '---', v2: '---', flex: '--°C', flaps: 'CONF 1+F',
     vapp: '---', vref: '---', dist: '----m',
+    aircraftLabel: '—', mtowRatioPct: null,
   });
 
   const [loadingMsg, setLoadingMsg] = useState('');
@@ -56,7 +57,13 @@ function Performance({ type }) {
           ? parseFloat(data.weights?.est_tow) || 0
           : parseFloat(data.weights?.est_ldw) || 0;
 
-        const icaoType = data.aircraft?.icaocode || data.aircraft?.icao_code || '';
+        const icaoType =
+          data.aircraft?.icaocode ||
+          data.aircraft?.icao_code ||
+          data.aircraft?.base_type ||
+          data.aircraft?.name ||
+          data.general?.icao_aircraft ||
+          '';
         const profile = getAircraftProfile(icaoType);
 
         const metarRaw = airportNode.metar || '';
@@ -70,6 +77,12 @@ function Performance({ type }) {
           ? computeTakeoffPerformance({ profile, weightKg, elevationFt, oatC: wx.tempC, headwindKt })
           : computeLandingPerformance({ profile, weightKg, elevationFt, headwindKt });
 
+        const refWeight = isTakeoff ? profile.mtow : profile.mlw;
+        const weightPct = Math.round((weightKg / refWeight) * 100);
+        const aircraftLabel = profile.matched
+          ? profile.matchedType
+          : `${icaoType || 'Unknown'} (no profile — using generic reference)`;
+
         setFlightData({
           airport: airportNode.icao_code || '----',
           rwy,
@@ -77,6 +90,8 @@ function Performance({ type }) {
           tempLabel: `${wx.tempC}°C`,
           qnhLabel: `${wx.qnh}`,
           weightLabel: `${(weightKg / 1000).toFixed(1)}T`,
+          aircraftLabel,
+          mtowRatioPct: weightPct,
           ...perf,
         });
         setLoadingMsg(`Data loaded from SimBrief (${icaoType || 'generic'})!`);
@@ -143,6 +158,12 @@ function Performance({ type }) {
               <Field label="Airport" value={flightData.airport} />
               <Field label="Runway" value={flightData.rwy} />
               <Field label="Weight" value={flightData.weightLabel} />
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                Aircraft: <b style={{ color: 'var(--vivid-cyan)' }}>{flightData.aircraftLabel}</b>
+                {flightData.mtowRatioPct !== null && (
+                  <> · {flightData.mtowRatioPct}% of {isTakeoff ? 'MTOW' : 'MLW'}</>
+                )}
+              </div>
             </div>
           </div>
 
@@ -195,13 +216,24 @@ function Performance({ type }) {
             </p>
           )}
 
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '15px 20px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.75rem' }}>FLAPS SETTING</div>
+              <div style={{ fontSize: '1.6rem', fontWeight: 'bold', color: '#fff' }}>{results.flaps}</div>
+            </div>
+            {isTakeoff && results.flex === 'TOGA' && (
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textAlign: 'right', maxWidth: '260px' }}>
+                TOGA (full thrust) required — weight is close to or at MTOW for this profile, leaving no margin for a reduced-thrust (FLEX) takeoff.
+              </div>
+            )}
+          </div>
+
           {isTakeoff ? (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', textAlign: 'center' }}>
               <Result label="V1" value={results.v1} />
               <Result label="VR" value={results.vr} />
               <Result label="V2" value={results.v2} />
               <Result label="FLEX" value={results.flex} highlight />
-              <Result label="FLAPS" value={results.flaps} span={4} />
               <Result label="TODIST" value={results.dist} span={4} />
             </div>
           ) : (
@@ -209,7 +241,6 @@ function Performance({ type }) {
               <Result label="VAPP" value={results.vapp} />
               <Result label="VREF" value={results.vref} />
               <Result label="LDG DIST" value={results.dist} highlight />
-              <Result label="FLAPS" value={results.flaps} span={3} />
             </div>
           )}
         </div>
