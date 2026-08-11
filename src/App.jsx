@@ -23,6 +23,21 @@ const REDIRECT_URI = encodeURIComponent(REDIRECT_URI_STRING);
 const DISCORD_AUTH_URL = `https://discord.com/oauth2/authorize?client_id=${CLIENT_ID}&response_type=token&redirect_uri=${REDIRECT_URI}&scope=identify%20guilds`;
 
 // ------------------------------------------------------------------
+// PROVEDORES DE CARTAS — tem de bater certo com as opções em Settings.jsx
+// ------------------------------------------------------------------
+const CHART_PROVIDERS = {
+  'Navigraph Charts (App)': { label: 'Navigraph', url: 'https://charts.navigraph.com' },
+  'MSFS24 Lido (Web)': { label: 'MSFS24 Lido', url: 'https://planner.flightsimulator.com/landing.html' },
+  'ChartFox (Web)': { label: 'ChartFox', url: 'https://chartfox.org' },
+};
+const DEFAULT_CHART_PROVIDER = 'Navigraph Charts (App)';
+
+function getChartProviderInfo() {
+  const key = localStorage.getItem('chart_provider') || DEFAULT_CHART_PROVIDER;
+  return CHART_PROVIDERS[key] || CHART_PROVIDERS[DEFAULT_CHART_PROVIDER];
+}
+
+// ------------------------------------------------------------------
 // COMPONENTE DE AUTENTICAÇÃO DO DISCORD
 // ------------------------------------------------------------------
 function DiscordAuthWrapper({ children }) {
@@ -175,11 +190,19 @@ const PageTransition = ({ children }) => (
 // ------------------------------------------------------------------
 function IpadHome() {
   const navigate = useNavigate();
+  const [chartInfo, setChartInfo] = useState(getChartProviderInfo());
+
+  useEffect(() => {
+    const refresh = () => setChartInfo(getChartProviderInfo());
+    window.addEventListener('settingsChanged', refresh);
+    return () => window.removeEventListener('settingsChanged', refresh);
+  }, []);
+
   const apps = [
     { name: 'Dashboard', path: '/', icon: <Home size={40} />, bg: 'linear-gradient(135deg, #0A5A30, #13874B)' },
     { name: 'Weather', path: '/weather', icon: <Cloud size={40} />, bg: 'linear-gradient(135deg, #1e3c72, #2a5298)' },
     { name: 'SimBrief', path: '/simbrief', icon: <Compass size={40} />, bg: 'linear-gradient(135deg, #ff7e5f, #feb47b)' },
-    { name: 'Navigraph', path: '/navigraph', icon: <Navigation size={40} />, bg: 'linear-gradient(135deg, #2b5876, #4e4376)' },
+    { name: chartInfo.label, path: '/charts', icon: <Navigation size={40} />, bg: 'linear-gradient(135deg, #2b5876, #4e4376)' },
     { name: 'Parkings', path: '/parkings', icon: <MapPin size={40} />, bg: 'linear-gradient(135deg, #654ea3, #eaafc8)' },
     { name: 'Takeoff Perf', path: '/performance-takeoff', icon: <Gauge size={40} />, bg: 'linear-gradient(135deg, #f12711, #f5af19)' },
     { name: 'Landing Perf', path: '/performance-landing', icon: <Gauge size={40} />, bg: 'linear-gradient(135deg, #3a7bd5, #3a6073)' },
@@ -220,6 +243,13 @@ function IpadHome() {
 function IpadAppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [chartInfo, setChartInfo] = useState(getChartProviderInfo());
+
+  useEffect(() => {
+    const refresh = () => setChartInfo(getChartProviderInfo());
+    window.addEventListener('settingsChanged', refresh);
+    return () => window.removeEventListener('settingsChanged', refresh);
+  }, []);
 
   return (
     <PageTransition>
@@ -234,7 +264,7 @@ function IpadAppLayout() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/simbrief" element={<IFrameView url="https://www.simbrief.com" title="SimBrief" />} />
-            <Route path="/navigraph" element={<IFrameView url="https://charts.navigraph.com" title="Navigraph Charts" />} />
+            <Route path="/charts" element={<IFrameView url={chartInfo.url} title={chartInfo.label} />} />
             <Route path="/weather" element={<Weather />} />
             <Route path="/parkings" element={<Parkings />} />
             <Route path="/performance-takeoff" element={<Performance type="takeoff" />} />
